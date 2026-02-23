@@ -5,60 +5,66 @@ from dotenv import load_dotenv
 import traceback
 import os
 
+load_dotenv() # Procura um arquivo .env com variáveis 
+DB_PATH = os.getenv('DATABASE', './data/lista.sqlite3')
 
-# Carrega variáveis de ambiente se necessário
-load_dotenv()
+def init_db(db_name: str = DB_PATH):
+    with connect(db_name) as conn:
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS atividades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            titulo_atividade TEXT NOT NULL,
+            tipo_de_atividade TEXT,
+            indicado_por TEXT      
+        );
+        """)
 
 class Database:
-    def __init__(self, db_name: str = "database.db"):
-        self.db_name: str = db_name
-        self.connection: Optional[Connection] = None
-
-    def __enter__(self) -> Self:
-        self.connection = connect(self.db_name)
-        self.connection.row_factory = Any # Permite acessar colunas por nome ou índice
-        return self
-
-    def __exit__(
-        self, 
-        exc_type: Optional[Type[BaseException]], 
-        exc_val: Optional[BaseException], 
-        exc_tb: Optional[TracebackType]
-    ) -> None:
-        if self.connection:
-            if exc_type is None:
-                self.connection.commit()
-            else:
-                self.connection.rollback() # Cancela mudanças se houver erro
-            self.connection.close()
+    """
+        Classe que regencia conexões e operações com o banco de dados SQLitre. Utiliza o protocolo de gerenciamento de contxtos para garantir qua a conexão seja encerrada corretamente
+    """
+    def __init__(self, db_name: str = DB_PATH) -> None:
+        self.connection: Connection = connect(db_name)
+        self.cursor: Cursor = self.connection.cursor()
+        self.executar("""
+       CREATE TABLE IF NOT EXISTS atividades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            titulo_atividade TEXT NOT NULL,
+            tipo_de_atividade TEXT,
+            indicado_por TEXT      
+        );
+        """)
 
     def executar(self, query: str, params: tuple = ()) -> Cursor:
-        if self.connection:
-            cursor: Cursor = self.connection.cursor()
-            cursor.execute(query, params)
-            return cursor
-        raise ConnectionError("Banco de dados não conectado.")
+        self.cursor.execute(query, params)
+        self.connection.commit()
+        return self.cursor
 
-    def buscar_tudo(self, query: str, params: tuple = ()) -> list[tuple]:
-        if self.connection:
-            cursor: Cursor = self.connection.cursor()
-            cursor.execute(query, params)
-            # Retorna lista de tuplas para bater com o desempacotamento do seu Model
-            return [tuple(row) for row in cursor.fetchall()]
-        raise ConnectionError("Banco de dados não conectado.")
+    def buscar_tudo(self, query: str, params: tuple = ()) -> list[Any]:
+        self.cursor.execute(query, params)
+        return self.cursor.fetchall()
 
-def init_db() -> None:
-    query = """
-    CREATE TABLE IF NOT EXISTS tarefas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        titulo TEXT NOT NULL,
-        tipo TEXT NOT NULL,
-        indicado_por TEXT
-    );
-    """
-    try:
-        with Database() as db:
-            db.executar(query)
-    except Exception:
-        print("Erro ao inicializar o banco de dados:")
-        traceback.print_exc()
+    def close(self) -> None:
+        self.connection.close()
+
+    # Métodos para o gerenciamento de contexto
+
+    # Método de entrada do contexto
+    def __enter__(self) -> Self:
+        return self
+
+    # Método de saída do contexto
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        tb: Optional[TracebackType],
+    ) -> None:
+        if exc_type is not None:
+            print("Exceção capiturar no contexto: ")
+            print(f"Tipo: {exc_type.__name__}")
+            print(f"Mensagem: {exc_value}")
+            print("Traceback completo:")
+            traceback.print_tb(tb)
+
+        self.close()

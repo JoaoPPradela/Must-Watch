@@ -1,0 +1,85 @@
+    {% extends "base.html" %}
+    {% block content %}
+
+    <div class="container mt-5">
+
+        <!-- Formulário -->
+        <div class="card shadow-sm mb-5">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <input type="text" name="titulo-atividade" class="form-control form-control-lg" 
+                            placeholder="Título da Atividade" required 
+                            value="{{ atividade_selecionada.titulo_atividade if atividade_selecionada else '' }}">
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <select name="tipo_de_atividade" class="form-select form-select-lg" required>
+                                <option value="" disabled {% if not atividade_selecionada %}selected{% endif %}>
+                                    Selecione o tipo...
+                                </option>
+                                <option value="Jogo">Jogo</option>
+                                <option value="Filme">Filme</option>
+                                <option value="Série">Série</option>
+                                <option value="Livro">Livro</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <input type="text" name="indicado_por" class="form-control form-control-lg" 
+                                placeholder="Indicado por (opcional)" 
+                                value="{{ atividade_selecionada.indicado_por if atividade_selecionada else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">Salvar</button>
+                        
+                        {% if atividade_selecionada %}
+                            <a href="{{ url_for('atividade') }}" class="btn btn-outline-secondary btn-lg px-5">Cancelar</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de atividades -->
+        <h2 class="mb-4">Minha Lista de Desejos</h2>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for atividade in atividades %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ atividade.titulo_atividade }}</h5>
+                        <p class="card-text">
+                            <span class="badge bg-secondary">{{ atividade.tipo_de_atividade }}</span>
+                        </p>
+                        
+                        {% if atividade.indicado_por %}
+                            <small class="text-muted">
+                                Indicado por: <strong>{{ atividade.indicado_por }}</strong>
+                            </small>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <a href="{{ url_for('update', idAtividade=atividade.id_atividade) }}" 
+                        class="btn btn-outline-primary btn-sm">Editar</a>
+                        <a href="{{ url_for('delete', idAtividade=atividade.id_atividade) }}" 
+                        class="btn btn-outline-danger btn-sm">Apagar</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-5">
+                        Nenhuma atividade cadastrada ainda
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    {% endblock %}

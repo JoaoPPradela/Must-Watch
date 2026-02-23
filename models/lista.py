@@ -2,67 +2,55 @@ from sqlite3 import Cursor
 from typing import Optional, Self, Any
 from models.database import Database
 
-class Tarefa:
-    def __init__(
-        self, 
-        titulo: str, 
-        tipo: str, 
-        indicado_por: str, 
-        id_tarefa: Optional[int] = None
-    ) -> None:
-        self.id_tarefa: Optional[int] = id_tarefa
-        self.titulo: str = titulo
-        self.tipo: str = tipo
-        self.indicado_por: str = indicado_por
+class Atividade:
+    """
+        Classe Para representar atividade, com metodos para salvar, obter, excluir e  atualizar tarefas com um banco de dados usando a classe Database.
+    """
+    def __init__(self: Self, titulo_atividade: Optional[str], tipo_de_atividade: Optional[str] = None ,indicado_por:Optional[str] = None, id_atividade:Optional[int] = None)-> None:
+        self.titulo_atividade: Optional[str] = titulo_atividade
+        self.tipo_de_atividade: Optional[str]  = tipo_de_atividade
+        self.indicado_por: Optional[str] = indicado_por
+        self.id_atividade: Optional[int] = id_atividade
+        
 
     @classmethod
-    def id(cls, id: int) -> Optional[Self]:
+    def id(cls, id: int) -> Self:
         with Database() as db:
-            # Busca os campos exatos da nova estrutura
-            query: str = 'SELECT titulo, tipo, indicado_por FROM tarefas WHERE id = ?;'
+            query: str = 'SELECT titulo_atividade, tipo_de_atividade, indicado_por FROM atividades WHERE id = ?;'
             params: tuple = (id,)
-            resultado: list[tuple] = db.buscar_tudo(query, params)
-            
-            if not resultado:
-                return None
+            resultado = db.buscar_tudo(query, params)
+            print(resultado)
 
-            # Desempacotamento seguro da lista de resultados
-            [[titulo, tipo, indicado_por]] = resultado
+            #desenpacotamento de coleção
+            [[titulo, tipo, indicado]] = resultado
 
-        return cls(titulo=titulo, tipo=tipo, indicado_por=indicado_por, id_tarefa=id)
+        return cls(id_atividade=id, titulo_atividade=titulo, tipo_de_atividade=tipo, indicado_por=indicado)
         
-    def salvar_tarefa(self: Self) -> None:
+    def salvar_atividade(self: Self)-> None:
         with Database() as db:
-            # Inserção seguindo a nova ordem de colunas
-            query: str = "INSERT INTO tarefas (titulo, tipo, indicado_por) VALUES (?, ?, ?);"
-            params: tuple = (self.titulo, self.tipo, self.indicado_por)
+            query: str = " INSERT INTO atividades (titulo_atividade, tipo_de_atividade, indicado_por) VALUES (?, ?, ?);"
+            params: tuple = (self.titulo_atividade, self.tipo_de_atividade, self.indicado_por)
             db.executar(query, params)
 
     @classmethod
-    def obter_tarefas(cls) -> list[Self]:
+    def obter_atividades(cls) -> list[Self]:
         with Database() as db:
-            # Seleciona todos os itens para renderizar na lista
-            query: str = 'SELECT titulo, tipo, indicado_por, id FROM tarefas;'
+            query: str = 'SELECT titulo_atividade, tipo_de_atividade, indicado_por, id FROM atividades;'
             resultados: list[Any] = db.buscar_tudo(query)
-            
-            # List comprehension para converter as linhas do banco em objetos Tarefa
-            tarefas: list[Self] = [
-                cls(titulo, tipo, indicado, id_reg) 
-                for titulo, tipo, indicado, id_reg in resultados
-            ]
-            return tarefas
+            atividades: list[Any] = [cls(titulo, tipo, indicado_por, id) for titulo, tipo, indicado_por, id in resultados]
+            return atividades
     
-    def excluir_tarefa(self: Self) -> Cursor:
+    def excluir_atividade(self) -> Cursor:
         with Database() as db:
-            query: str = 'DELETE FROM tarefas WHERE id = ?;'
-            params: tuple = (self.id_tarefa,)
+            query: str = 'DELETE FROM atividades WHERE id = ?;'
+            params: tuple = (self.id_atividade,)
             resultado: Cursor = db.executar(query, params)
             return resultado
     
-    def atualizar_tarefas(self: Self) -> Cursor:
-        with Database() as db:
-            # Atualiza todos os campos baseados no ID oculto
-            query: str = 'UPDATE tarefas SET titulo = ?, tipo = ?, indicado_por = ? WHERE id = ?;'
-            params: tuple = (self.titulo, self.tipo, self.indicado_por, self.id_tarefa)
+    def atualizar_atividade(self) -> Cursor:
+           with Database() as db:
+            query: str = 'UPDATE atividades SET titulo_atividade = ?, tipo_de_atividade = ?, indicado_por = ? WHERE id = ?;'
+            params: tuple = (self.titulo_atividade, self.tipo_de_atividade,self.indicado_por, self.id_atividade)
             resultado: Cursor = db.executar(query, params)
             return resultado
+    

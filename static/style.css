@@ -1,0 +1,92 @@
+/* 1. BASE E TIPOGRAFIA */
+body {
+    background-color: #f8f9fa; /* Fundo cinza bem claro para destacar os cards brancos */
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #212529;
+    line-height: 1.6;
+}
+
+/* 2. CABEÇALHOS */
+h2 {
+    font-weight: 700;
+    color: #343a40;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+/* 3. FORMULÁRIO (ESTRUTURA DE ENTRADA) */
+div.container .card {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px; /* Cantos menos arredondados para um visual mais sério/sólido */
+    background-color: #ffffff;
+}
+
+/* Ajuste de Inputs e Selects */
+.form-control-lg, .form-select-lg {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    padding: 0.75rem;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: none; /* Remove brilho excessivo para um visual mais seco */
+}
+
+/* 4. BOTÕES DE AÇÃO PRINCIPAL */
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase; /* Dá um tom mais formal e profissional */
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 10px 30px;
+}
+
+/* 5. LISTA DE TAREFAS (VISUAL DOS CARDS) */
+/* Etiqueta (Badge) Profissional */
+div.container .badge {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+/* Título da Tarefa */
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+/* 6. RODAPÉ DOS CARDS (AÇÕES DE EDIÇÃO/EXCLUSÃO) */
+div.container .card-footer {
+    border-top: 1px solid #f1f3f5;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: flex-end; /* Alinha os botões à direita */
+    gap: 15px;
+    padding: 12px 20px;
+}
+
+/* Botões de Link (Editar e Apagar) */
+.btn-outline-primary, .btn-outline-danger {
+    border: none;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0;
+}
+
+.btn-outline-primary:hover, .btn-outline-danger:hover {
+    background: transparent;
+    text-decoration: underline;
+}
+
+.btn-outline-primary { color: #007bff; }
+.btn-outline-danger { color: #dc3545; }
